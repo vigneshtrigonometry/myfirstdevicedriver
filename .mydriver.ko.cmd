@@ -1,0 +1,1 @@
+cmd_/home/selvarajuvignesh/Documents/devicedriver/mydriver.ko := ld -r -m elf_x86_64 -T ./scripts/module-common.lds --build-id  -o /home/selvarajuvignesh/Documents/devicedriver/mydriver.ko /home/selvarajuvignesh/Documents/devicedriver/mydriver.o /home/selvarajuvignesh/Documents/devicedriver/mydriver.mod.o

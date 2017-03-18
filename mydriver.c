@@ -82,8 +82,7 @@ onebyte_data = kmalloc(sizeof(char), GFP_KERNEL);
 if (!onebyte_data) {
 onebyte_exit();
 // cannot allocate memory
-// return no memory error, negative signify a
-failure
+// return no memory error, negative signify a failure
 return -ENOMEM;
 }
 // initialize the value to be X
@@ -91,6 +90,8 @@ return -ENOMEM;
 printk(KERN_ALERT "This is a onebyte device module\n");
 return 0;
 }
+
+
 static void onebyte_exit(void)
 {
 // if the pointer is pointing to something
