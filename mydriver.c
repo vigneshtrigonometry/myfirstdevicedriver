@@ -9,6 +9,7 @@
 #include<linux/module.h>
 
 #define MAJOR_NUMBER 61
+#define DEVSIZE 4*1024*1024
 
 /* forward declaration */
 int onebyte_open(struct inode *inode, struct file *filep);
@@ -42,13 +43,27 @@ ssize_t onebyte_read(struct file *filep, char *buf, size_t count, loff_t *f_pos)
 /*please complete the function on your own*/
 //linux doc func to output data to user space
 //unsigned long copy_to_user (void __user *to,const void *from,unsigned long n);
-if(onebyte_data != NULL && *f_pos == 0){ //only if 0 we copy data to user space 
-copy_to_user(buf, onebyte_data, 1);
-*f_pos+=1; //without it goes into unlimited loop causing XXXXXXXXXXXXX printed on the screen
+ if(*f_pos >= DEVSIZE){
+        return 0;
+    }
+    
+    if(count + *f_pos > DEVSIZE){
+        count = DEVSIZE - *f_pos;
+    }
+
+    if(copy_to_user(buf, onebyte_data + *f_pos, count)){
+        return -EFAULT;
+    }
+
+    *f_pos = *f_pos + count;
+return count;
+/*if(onebyte_data != NULL && *f_pos == 0){ //only if 0 we copy data to user space 
+copy_to_user(buf, onebyte_data, sizeof(buf));
+*f_pos+=sizeof(buf); //without it goes into unlimited loop causing XXXXXXXXXXXXX printed on the screen
 return 1; //just read one byte
 }
 return 0; // if my data is null then don't read anything
-
+ */
 }
 
 ssize_t onebyte_write(struct file *filep, const char *buf,size_t count, loff_t *f_pos)
@@ -56,14 +71,35 @@ ssize_t onebyte_write(struct file *filep, const char *buf,size_t count, loff_t *
 /*please complete the function on your own*/
 /* loff_t is long offset - a kernel data structure that points to offset provided by user.
 This must be updated because it tells us where to write. (Seek pointers) */
+
+    if(*f_pos >= DEVSIZE){
+        return -ENOSPC;
+    }
+
+    if(count + *f_pos > DEVSIZE){
+        count = DEVSIZE - *f_pos;
+    }
+
+    if(copy_from_user(onebyte_data + *f_pos, buf, count)){
+        return -EFAULT;
+    }
+
+    *f_pos += count;
+    //print the size written
+     printk(KERN_ALERT "The return value is %lld", *f_pos);
+
+return count;
+
+/*
 if(*f_pos ==0 ){
-copy_from_user(onebyte_data, buf, 1);
-*f_pos += 1;
+copy_from_user(onebyte_data, buf, sizeof(buf));
+*f_pos += sizeof(buf);
+printk(KERN_ALERT "The return value is %lld",*f_pos);
 return 1;
 }
 else{
 return -ENOSPC;
-}
+} */
 }
 
 static int onebyte_init(void)
@@ -79,7 +115,7 @@ return result;
 // kmalloc is just like malloc, the second parameter is
 // the type of memory to be allocated.
 // To release the memory allocated by kmalloc, use kfree.
-onebyte_data = kmalloc(sizeof(char), GFP_KERNEL);
+onebyte_data = kmalloc(DEVSIZE, GFP_KERNEL);
 if (!onebyte_data) {
 onebyte_exit();
 // cannot allocate memory

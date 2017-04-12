@@ -1,2 +1,2 @@
-/home/selvarajuvignesh/Documents/devicedriver/mydriver.ko
-/home/selvarajuvignesh/Documents/devicedriver/mydriver.o
+/home/selvarajuvignesh/Documents/assignment4/mydriver.ko
+/home/selvarajuvignesh/Documents/assignment4/mydriver.o
