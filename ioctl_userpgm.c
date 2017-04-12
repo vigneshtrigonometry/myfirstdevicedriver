@@ -15,33 +15,42 @@ int lcd;
 
 void test() 
 { 
-    int k, i, sum; 
-    char s[3]; 
-    memset(s, '2', sizeof(s)); 
-    printf("test begin!\n"); 
-    k = write(lcd, s, sizeof(s)); 
-    printf("written = %d\n", k); 
-    k = ioctl(lcd, SCULL_HELLO); 
-    printf("result = %d\n", k); 
+    	int k, i, sum; 
+    	char s[3]; 
+    	memset(s, '2', sizeof(s)); 
+    	printf("test begin!\n"); 
+    	k = write(lcd, s, sizeof(s)); 
+    	printf("written = %d\n", k); 
+    	k = ioctl(lcd, SCULL_HELLO); 
+    	printf("result = %d\n", k); 
 
-    char *message = "This is a device message from user program\n";
-    if(k = ioctl(lcd, SET_DEV_MSG, message)){
-        printf("ioctl setting message failed\n");
-        return;
-    }
-    char *user_msg = (char *)malloc(60);
-    if(!user_msg){
-        printf("malloc error\n");
+    	char *message = "This is a device message from user program\n";
+    	if(k = ioctl(lcd, SET_DEV_MSG, message)){
+        	printf("ioctl setting message failed\n");
+        	return;
+    	}
+    	char *user_msg = (char *)malloc(60);
+    	if(!user_msg){
+        	printf("malloc error\n");
+        	return ;
+    	}
+    	char *user_msg_tmp = (char *)malloc(60);
+    	if(k = ioctl(lcd, GET_DEV_MSG, user_msg_tmp)){
+        	printf("_IOR ioctl getting message failed\n");
+        	return ;
+    	}
+    	printf("_IOR user_msg is: %s \n", user_msg_tmp);
+    	free(user_msg_tmp);
+    
+
+	char *new_user_msg = "This is the new message set by user-pgm using _IOWR\n";
+    	strcpy(user_msg, new_user_msg);
+    	if(k = ioctl(lcd, WR_DEV_MSG, user_msg)){
+        printf("_IOWR ioctl get msg fail\n");
         return ;
     }
-    char *user_msg_tmp = (char *)malloc(60);
-    if(k = ioctl(lcd, GET_DEV_MSG, user_msg_tmp)){
-        printf("_IOR ioctl getting message failed\n");
-        return ;
-    }
-    printf("_IOR user_msg is: %s \n", user_msg_tmp);
-    free(user_msg_tmp);
-
+    	printf("_IOWR user_msg is: %s \n", new_user_msg);
+    	free(user_msg);
 
 } 
 

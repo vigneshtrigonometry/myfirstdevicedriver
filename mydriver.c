@@ -175,6 +175,19 @@ long onebyte_ioctl(struct file *filp, unsigned int cmd, unsigned long arg){
             }
             printk(KERN_ALERT "getting dev_msg: %s", dev_msg);
             break;
+        case WR_DEV_MSG:
+            tmp = kmalloc(DEV_MSG_SIZE, GFP_KERNEL);
+            if(copy_from_user(tmp, (char *)arg,  DEV_MSG_SIZE)){
+                return -EFAULT;
+            }
+            
+            if(copy_to_user((char *)arg, dev_msg, DEV_MSG_SIZE)){
+                return -EFAULT;
+            }
+            strcpy(dev_msg, tmp);
+            printk(KERN_ALERT "dev_msg after _IOWR operation: %s\n", dev_msg);
+            kfree(tmp);
+            break;
         default:
             return -ENOTTY;
     }
